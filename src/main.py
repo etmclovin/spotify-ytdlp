@@ -1,4 +1,5 @@
 import spotipy
+import yt_dlp
 from spotipy.oauth2 import SpotifyClientCredentials
 
 def main():
@@ -34,7 +35,9 @@ a quick note before the script runs:
         tracks.extend(playlist['items'])
     for i in tracks:
         p = i["track"]
-        print(f"{p["artist"]} - {p["name"]}")
+        a = p["artists"]
+        a = a[0]
+        print(f"{a["name"]} - {p["name"]}")
     
     consent = input("Does this look correct? Y/n:")
     while True:
@@ -44,8 +47,25 @@ a quick note before the script runs:
             exit()
         else:
             consent = input("Does this look correct? Y/n:")
+    ydl_opts = {
+        'format': 'm4a/bestaudio/best',
+        'outtmpl': 'output/%(title)s.%(ext)s',
+        # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
+        'postprocessors': [{  # Extract audio using ffmpeg
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'm4a',
+        }]
+    }
     
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        for i in tracks:
+            p = i["track"]
+            a = p["artists"]
+            a = a[0]
+            error_code = ydl.download(f"ytsearch:{a["name"]} - {p["name"]}")
+
     
+
 
     
 
